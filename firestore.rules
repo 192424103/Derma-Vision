@@ -1,0 +1,119 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Entity Validations ---
+    function isValidUser(data) {
+      return data.uid == request.auth.uid 
+        && data.email is string && data.email.size() <= 200
+        && data.keys().hasAll(['uid', 'email'])
+        && (data.displayName == null || (data.displayName is string && data.displayName.size() <= 100))
+        && (data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 500));
+    }
+
+    function isValidAnalysis(data) {
+      return data.userId == request.auth.uid
+        && data.condition is string && data.condition.size() <= 200
+        && data.healthScore is number && data.healthScore >= 0 && data.healthScore <= 100
+        && data.timestamp is timestamp
+        && data.imageUrl is string && data.imageUrl.size() <= 2000000
+        && (data.message == null || (data.message is string && data.message.size() <= 5000))
+        && (data.confidence == null || data.confidence is number)
+        && (data.detections == null || data.detections is map)
+        && (data.recommendations == null || data.recommendations is map)
+        && data.keys().hasAll(['userId', 'condition', 'healthScore', 'timestamp', 'imageUrl']);
+    }
+
+    function isValidPost(data) {
+      return data.authorId == request.auth.uid
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.content is string && data.content.size() > 0 && data.content.size() <= 5000
+        && data.category is string && data.category.size() <= 50
+        && data.createdAt is timestamp
+        && data.keys().hasAll(['authorId', 'authorName', 'title', 'content', 'category', 'createdAt']);
+    }
+
+    function isValidReply(data) {
+      return data.authorId == request.auth.uid
+        && data.content is string && data.content.size() > 0 && data.content.size() <= 2000
+        && data.createdAt is timestamp
+        && data.postId is string && isValidId(data.postId)
+        && data.keys().hasAll(['authorId', 'authorName', 'content', 'createdAt', 'postId']);
+    }
+
+    // --- Collection Rules ---
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && isValidUser(incoming()) && request.auth.uid == userId;
+      allow update: if (isOwner(userId) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL'])
+        && isValidUser(incoming())
+      )) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /analyses/{analysisId} {
+      allow get: if isSignedIn() && (isOwner(existing().userId) || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidAnalysis(incoming()) && isValidId(analysisId);
+      allow delete: if isAdmin();
+    }
+
+    match /forum_posts/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidPost(incoming()) && isValidId(postId);
+      allow update: if (isOwner(existing().authorId) || isAdmin()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'content', 'category'])
+        && isValidPost(incoming())
+      );
+      allow delete: if isAdmin();
+
+      match /replies/{replyId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && isValidReply(incoming()) && isValidId(replyId);
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /admins/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /system/{doc=**} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

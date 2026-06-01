@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "isAdmin": { "type": "boolean" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Analysis": {
+      "title": "Analysis",
+      "description": "Skin analysis result record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "imageUrl": { "type": "string" },
+        "condition": { "type": "string" },
+        "healthScore": { "type": "number" },
+        "detections": { "type": "object" },
+        "recommendations": { "type": "object" },
+        "confidence": { "type": "number" }
+      },
+      "required": ["userId", "timestamp", "imageUrl", "condition", "healthScore"]
+    },
+    "ForumPost": {
+      "title": "ForumPost",
+      "description": "A post in the community forum",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "replyCount": { "type": "number" }
+      },
+      "required": ["authorId", "authorName", "title", "content", "category", "createdAt"]
+    },
+    "ForumReply": {
+      "title": "ForumReply",
+      "description": "A reply to a forum post",
+      "type": "object",
+      "properties": {
+        "postId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["postId", "authorId", "authorName", "content", "createdAt"]
+    },
+    "AdminConfig": {
+      "title": "AdminConfig",
+      "description": "System wide configuration and stats",
+      "type": "object",
+      "properties": {
+        "modelAccuracy": { "type": "number" },
+        "totalScans": { "type": "number" },
+        "activeUsers": { "type": "number" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents"
+    },
+    "/analyses/{analysisId}": {
+      "schema": "Analysis",
+      "description": "History of skin analysis results"
+    },
+    "/forum_posts/{postId}": {
+      "schema": "ForumPost",
+      "description": "Community forum discussions"
+    },
+    "/forum_posts/{postId}/replies/{replyId}": {
+      "schema": "ForumReply",
+      "description": "Replies to specific forum posts"
+    },
+    "/admins/{userId}": {
+      "schema": "object",
+      "description": "Designates recursive admin status"
+    },
+    "/system/stats": {
+      "schema": "AdminConfig",
+      "description": "Global statistics for admin dashboard"
+    }
+  }
+}

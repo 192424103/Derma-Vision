@@ -1,0 +1,6 @@
+{
+  "name": "DermaVision AI",
+  "description": "AI-Powered Personalized Skincare Recommendation System using advanced computer vision and CNN-based analysis.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["AI Image Analysis", "Personalized Health Dashboard"]
+}
