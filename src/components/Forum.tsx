@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
-import { cn } from '../lib/utils';
+import { cn, formatDateSafe } from '../lib/utils';
 
 interface Post {
   id: string;
@@ -29,6 +29,10 @@ export default function Forum() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      setPosts([]);
+      return;
+    }
     const path = 'forum_posts';
     const q = query(collection(db, path), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -38,7 +42,7 @@ export default function Forum() {
       handleFirestoreError(err, OperationType.LIST, path);
     });
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,7 +161,7 @@ export default function Forum() {
                     <h5 className="text-white font-bold">{post.authorName}</h5>
                     <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                       <Clock className="w-3 h-3" /> 
-                      {post.createdAt?.toDate().toLocaleDateString() || 'Just now'}
+                      {post.createdAt ? formatDateSafe(post.createdAt) : 'Just now'}
                     </div>
                   </div>
                 </div>
@@ -219,6 +223,10 @@ function Replies({ postId }: { postId: string }) {
   const [newReply, setNewReply] = useState('');
 
   useEffect(() => {
+    if (!user) {
+      setReplies([]);
+      return;
+    }
     const path = `forum_posts/${postId}/replies`;
     const q = query(collection(db, path), orderBy('createdAt', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -227,7 +235,7 @@ function Replies({ postId }: { postId: string }) {
       handleFirestoreError(err, OperationType.LIST, path);
     });
     return () => unsubscribe();
-  }, [postId]);
+  }, [postId, user]);
 
   const handleReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -257,7 +265,7 @@ function Replies({ postId }: { postId: string }) {
         <div key={reply.id} className="glass bg-white/5 p-4 rounded-2xl border-white/5">
           <div className="flex justify-between items-center mb-2">
             <span className="text-[10px] font-bold text-brand-purple">{reply.authorName}</span>
-            <span className="text-[10px] text-slate-600">{reply.createdAt?.toDate().toLocaleTimeString()}</span>
+            <span className="text-[10px] text-slate-600">{reply.createdAt ? formatDateSafe(reply.createdAt, 'time') : 'Just now'}</span>
           </div>
           <p className="text-sm text-slate-300">{reply.content}</p>
         </div>

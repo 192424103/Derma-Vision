@@ -9,7 +9,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { cn } from '../lib/utils';
+import { cn, formatDateSafe } from '../lib/utils';
 
 const COLORS = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B'];
 
@@ -204,7 +204,7 @@ export default function AdminDashboard() {
                           </div>
                           <div>
                             <p className="text-sm font-bold text-white uppercase tracking-tighter">Analysis #{item.id.slice(0,6)}</p>
-                            <p className="text-[10px] text-slate-500 font-mono">{item.timestamp?.toDate().toLocaleString()}</p>
+                            <p className="text-[10px] text-slate-500 font-mono">{formatDateSafe(item.timestamp, 'datetime')}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-6">
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="py-6 text-sm text-slate-400">{u.email}</td>
                       <td className="py-6 text-xs font-mono text-slate-500">
-                        {u.createdAt?.toDate().toLocaleDateString() || 'N/A'}
+                        {u.createdAt ? formatDateSafe(u.createdAt) : 'N/A'}
                       </td>
                       <td className="py-6">
                         <div className="flex items-center gap-2">

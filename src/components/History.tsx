@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
+import { formatDateSafe } from '../lib/utils';
 import Dashboard from './Dashboard';
 import MilestoneBadges from './MilestoneBadges';
 
@@ -88,7 +89,7 @@ export default function History() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                       <Calendar className="w-3 h-3" />
-                      {scan.timestamp ? scan.timestamp.toDate().toLocaleDateString() : 'Processing...'}
+                      {formatDateSafe(scan.timestamp)}
                     </div>
                     <ChevronRight className="w-5 h-5 text-brand-purple group-hover:translate-x-1 transition-transform" />
                   </div>

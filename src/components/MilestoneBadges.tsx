@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Award, Flame, ShieldCheck, Sparkles, Crown, Lock, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { safeGetDate } from '../lib/utils';
 
 interface MilestoneBadgesProps {
   history: any[];
@@ -19,9 +20,10 @@ export default function MilestoneBadges({ history }: MilestoneBadgesProps) {
   let maxScore = 0;
 
   history.forEach(scan => {
-    if (scan.timestamp) {
-      const dateStr = scan.timestamp.toDate ? scan.timestamp.toDate().toDateString() : new Date(scan.timestamp).toDateString();
-      if (dateStr) uniqueDays.add(dateStr);
+    const d = safeGetDate(scan.timestamp);
+    if (d) {
+      const dateStr = d.toDateString();
+      uniqueDays.add(dateStr);
     }
     const score = scan.healthScore || 0;
     if (score >= 80) scansWithHighScoreCount++;
