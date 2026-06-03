@@ -10,6 +10,40 @@ interface ScannerProps {
   onScanStart?: () => void;
 }
 
+function compressImage(dataUrl: string, maxW = 500, maxH = 500): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      
+      if (width > height) {
+        if (width > maxW) {
+          height = Math.round((height * maxW) / width);
+          width = maxW;
+        }
+      } else {
+        if (height > maxH) {
+          width = Math.round((width * maxH) / height);
+          height = maxH;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror = () => {
+      resolve(dataUrl);
+    };
+    img.src = dataUrl;
+  });
+}
+
 export default function Scanner({ onAnalysisComplete, onScanStart }: ScannerProps) {
   const [status, setStatus] = React.useState<AnalysisStatus>('idle');
   const [preview, setPreview] = React.useState<string | null>(null);
@@ -22,8 +56,13 @@ export default function Scanner({ onAnalysisComplete, onScanStart }: ScannerProp
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
+      reader.onloadend = async () => {
+        try {
+          const compressed = await compressImage(reader.result as string);
+          setPreview(compressed);
+        } catch (err) {
+          setPreview(reader.result as string);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -49,13 +88,14 @@ export default function Scanner({ onAnalysisComplete, onScanStart }: ScannerProp
       canvas.height = videoRef.current.videoHeight;
       const ctx = canvas.getContext('2d');
       ctx?.drawImage(videoRef.current, 0, 0);
-      const dataUrl = canvas.toDataURL('image/jpeg');
-      setPreview(dataUrl);
       
       // Stop webcam
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop());
       setShowWebcam(false);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      setPreview(dataUrl);
     }
   };
 

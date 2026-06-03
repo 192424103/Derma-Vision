@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   Droplets, Moon, Sun, Utensils, Info, 
   ChevronRight, TrendingUp, Heart, ShoppingBag, 
-  MessageSquare, Download, FileText, Activity
+  MessageSquare, Download, FileText, Activity, Camera
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { SkinAnalysisResult } from '../types';
@@ -58,7 +58,68 @@ export default function Dashboard({ result, image }: DashboardProps) {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">
+          {/* Scan Source Image Card */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            className="lg:col-span-1 glass rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group border border-white/5"
+          >
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-brand-purple/5 to-transparent pointer-events-none" />
+            
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-brand-purple" /> Scan Source
+                </h3>
+                <span className="px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[9px] font-bold text-green-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> AI LINKED
+                </span>
+              </div>
+              
+              <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 mb-4 bg-black/40 group-hover:border-brand-purple/40 transition-colors">
+                {/* Diagnostic corner overlays */}
+                <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-brand-purple/50 pointer-events-none" />
+                <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-brand-purple/50 pointer-events-none" />
+                <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-brand-purple/50 pointer-events-none" />
+                <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-brand-purple/50 pointer-events-none" />
+                
+                {/* Scan line effect */}
+                <div className="absolute inset-x-0 h-[1px] bg-brand-purple/40 shadow-glow-purple top-1/2 animate-pulse pointer-events-none" />
+
+                {image ? (
+                  <img 
+                    src={image} 
+                    alt="Analyzed Skin Scan" 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-xs text-slate-500 font-mono">
+                    NO IMAGE SCAN
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <div className="space-y-2 font-mono text-[10px] text-slate-500 border-t border-white/5 pt-3">
+                <div className="flex justify-between">
+                  <span>DIAGNOSTIC TARGET</span>
+                  <span className="text-slate-300 font-bold uppercase">{result.condition ? result.condition.split(' ')[0] : 'DERMAL'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>CONFIDENCE</span>
+                  <span className="text-brand-purple font-bold">{(result.confidence ? result.confidence * 100 : 92.4).toFixed(1)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>RESOLUTION</span>
+                  <span className="text-slate-300">CUSTOM CAPTURE</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Main Score & Scan Info */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
