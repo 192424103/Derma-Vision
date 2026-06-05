@@ -29,11 +29,11 @@ const mockChartData = [
 
 export default function Dashboard({ result, image }: DashboardProps) {
   const radarData = [
-    { subject: 'Acne', A: result.detections.acne, fullMark: 100 },
-    { subject: 'Pigment', A: result.detections.pigmentation, fullMark: 100 },
-    { subject: 'Dryness', A: result.detections.dryness, fullMark: 100 },
-    { subject: 'Oiliness', A: result.detections.oiliness, fullMark: 100 },
-    { subject: 'Redness', A: result.detections.redness, fullMark: 100 },
+    { subject: 'Acne', A: result.detections?.acne ?? 0, fullMark: 100 },
+    { subject: 'Pigment', A: result.detections?.pigmentation ?? 0, fullMark: 100 },
+    { subject: 'Dryness', A: result.detections?.dryness ?? 0, fullMark: 100 },
+    { subject: 'Oiliness', A: result.detections?.oiliness ?? 0, fullMark: 100 },
+    { subject: 'Redness', A: result.detections?.redness ?? 0, fullMark: 100 },
   ];
 
   return (
@@ -218,7 +218,7 @@ export default function Dashboard({ result, image }: DashboardProps) {
               </ResponsiveContainer>
             </div>
             <div className="mt-6 flex flex-wrap gap-2">
-              {result.detections.deficiency.map(item => (
+              {(result.detections?.deficiency || []).map(item => (
                 <span key={item} className="px-3 py-1 rounded-lg bg-brand-purple/10 text-brand-purple text-[10px] font-bold border border-brand-purple/20 select-none">
                   {item}
                 </span>
@@ -239,7 +239,7 @@ export default function Dashboard({ result, image }: DashboardProps) {
             </div>
             <h3 className="text-xl font-bold mb-4">Morning Routine</h3>
             <ul className="space-y-4">
-              {result.recommendations.morning.map((item, i) => (
+              {(result.recommendations?.morning || []).map((item, i) => (
                 <li key={i} className="flex gap-3 text-sm text-slate-400 group">
                   <div className="w-1.5 h-1.5 rounded-full bg-brand-purple mt-2 shrink-0 group-hover:scale-150 transition-transform" />
                   {item}
@@ -259,7 +259,7 @@ export default function Dashboard({ result, image }: DashboardProps) {
             </div>
             <h3 className="text-xl font-bold mb-4">Night Routine</h3>
             <ul className="space-y-4">
-              {result.recommendations.night.map((item, i) => (
+              {(result.recommendations?.night || []).map((item, i) => (
                 <li key={i} className="flex gap-3 text-sm text-slate-400 group">
                   <div className="w-1.5 h-1.5 rounded-full bg-brand-blue mt-2 shrink-0 group-hover:scale-150 transition-transform" />
                   {item}
@@ -287,7 +287,7 @@ export default function Dashboard({ result, image }: DashboardProps) {
                 <div>
                   <h4 className="text-xs font-bold text-green-400 uppercase tracking-widest mb-3">Superfoods</h4>
                   <div className="flex flex-wrap gap-2">
-                    {result.recommendations.diet.consume.map(item => (
+                    {(result.recommendations?.diet?.consume || []).map(item => (
                       <span key={item} className="px-3 py-1.5 rounded-full bg-green-500/5 text-green-500 border border-green-500/10 text-[10px] font-bold">
                         {item}
                       </span>
@@ -297,7 +297,7 @@ export default function Dashboard({ result, image }: DashboardProps) {
                 <div>
                   <h4 className="text-xs font-bold text-red-400 uppercase tracking-widest mb-3">Limit Intake</h4>
                   <div className="flex flex-wrap gap-2">
-                    {result.recommendations.diet.avoid.map(item => (
+                    {(result.recommendations?.diet?.avoid || []).map(item => (
                       <span key={item} className="px-3 py-1.5 rounded-full bg-red-500/5 text-red-400 border border-red-500/10 text-[10px] font-bold">
                         {item}
                       </span>
@@ -352,7 +352,7 @@ export default function Dashboard({ result, image }: DashboardProps) {
             </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {result.recommendations.ingredients.map((ingredient, i) => (
+            {(result.recommendations?.ingredients || []).map((ingredient, i) => (
               <motion.div 
                 key={ingredient}
                 initial={{ opacity: 0, scale: 0.9 }}

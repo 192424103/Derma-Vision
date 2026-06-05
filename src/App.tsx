@@ -33,6 +33,14 @@ export default function App() {
     setAnalysisResult(result);
     setCapturedImage(image);
 
+    // Automatically smooth scroll to results after a brief render delay
+    setTimeout(() => {
+      const el = document.getElementById('results');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 150);
+
     // Save to Firestore if user is logged in
     if (user) {
       const path = 'analyses';
