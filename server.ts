@@ -221,7 +221,22 @@ Ensure your JSON response strictly matches the required schema fields:
 
               const text = response.text;
               if (text) {
-                return JSON.parse(text);
+                let cleanedText = text.trim();
+                // Strip markdown code fences if present
+                if (cleanedText.startsWith("```")) {
+                  cleanedText = cleanedText.replace(/^```[a-zA-Z]*\s*/, "");
+                  cleanedText = cleanedText.replace(/\s*```$/, "");
+                }
+                cleanedText = cleanedText.trim();
+
+                // Target anything starting with the first '{' and ending with the last '}'
+                const firstBrace = cleanedText.indexOf("{");
+                const lastBrace = cleanedText.lastIndexOf("}");
+                if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                  cleanedText = cleanedText.substring(firstBrace, lastBrace + 1);
+                }
+
+                return JSON.parse(cleanedText);
               }
               throw new Error("Empty text returned from Gemini SDK");
             } catch (err: any) {

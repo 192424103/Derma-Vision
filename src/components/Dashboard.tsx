@@ -314,7 +314,7 @@ export default function Dashboard({ result, image }: DashboardProps) {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Daily Hydration</p>
-                  <p className="text-sm font-bold text-white">{result.recommendations.hydration}</p>
+                  <p className="text-sm font-bold text-white">{result.recommendations?.hydration ?? "2.5 - 3.0 Liters"}</p>
                 </div>
               </div>
 
@@ -324,7 +324,7 @@ export default function Dashboard({ result, image }: DashboardProps) {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sleep Optimization</p>
-                  <p className="text-sm font-bold text-white">{result.recommendations.sleep}</p>
+                  <p className="text-sm font-bold text-white">{result.recommendations?.sleep ?? "7 - 8 hours"}</p>
                 </div>
               </div>
 
